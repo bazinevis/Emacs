@@ -1,0 +1,563 @@
+#+STARTUP: overview
+#+TITLE: EMACS CONFIGURATIONS
+
+* PACKAGE REPOSITORIES
+#+BEGIN_SRC emacs-lisp
+  (require 'package)
+  (add-to-list 'package-archives
+               '(
+                 "melpa" . "https://melpa.org/packages/") t
+               )
+  (setq package-enable-at-startup nil)
+  (package-initialize)
+  (unless (package-installed-p 'use-package)
+    (package-referesh-contents)
+    (package-install 'use-package)
+    )
+#+END_SRC
+
+* USER INTERFACE
+** MENU BAR
+#+BEGIN_SRC emacs-lisp
+  (menu-bar-mode -1)
+#+END_SRC
+
+** TOOLBAR
+#+BEGIN_SRC emacs-lisp
+  (tool-bar-mode -1)
+#+END_SRC
+
+** SCROLLBAR
+#+BEGIN_SRC emacs-lisp
+  (scroll-bar-mode -1)
+#+END_SRC
+
+** STARTUP SCREEN
+#+BEGIN_SRC emacs-lisp
+  (setq inhibit-startup-screen t)
+#+END_SRC
+
+** THEME
+#+BEGIN_SRC emacs-lisp
+  (use-package dracula-theme
+    :ensure t)
+  (load-theme 'dracula t)
+#+END_SRC
+
+** FONTS
+#+begin_src emacs-lisp
+  (set-frame-font "Noto Sans Mono 13" nil t)
+#+end_src
+
+** FILL INDICATOR
+#+BEGIN_SRC emacs-lisp
+  (global-display-fill-column-indicator-mode t)
+  (setq-default fill-column 80)
+#+END_SRC
+
+** TRUNCATE LINES
+#+begin_src emacs-lisp
+  (setq-default truncate-lines t)
+#+end_src
+** TAB SIZE
+#+begin_src emacs-lisp
+  (setq-default tab-width 2)
+#+end_src
+
+** HIGHLIGHT CURRENT LINE
+#+BEGIN_SRC emacs-lisp
+  (global-hl-line-mode nil)
+  (set-face-attribute 'line-number-current-line nil
+                      :foreground "#ffff00"
+                      :background "#696969"
+                      :weight 'bold
+                      :box t
+                      )
+#+END_SRC
+
+** NEVER INSERT TABS
+#+BEGIN_SRC emacs-lisp
+  (setq-default indent-tabs-mode nil)
+  (setq org-src-tab-acts-natively t)
+#+END_SRC
+** WINDOW SETUP
+#+begin_src emacs-lisp
+  (setq org-src-window-setup 'current-window)
+#+end_src
+
+* EMBARK
+#+begin_src emacs-lisp
+  (use-package embark
+    :ensure t)
+#+end_src
+
+* SMARTPARENS
+#+BEGIN_SRC emacs-lisp
+  (use-package smartparens-mode
+    :ensure smartparens
+    :hook (prog-mode text-mode markdown-mode)
+    :config
+    ;; load default config
+    (require 'smartparens-config)
+    (smartparens-global-mode)
+    )
+#+END_SRC
+
+* YASNIPPET
+#+BEGIN_SRC emacs-lisp
+  (use-package yasnippet
+    :ensure t)
+  (yas-global-mode 1)
+  (use-package yasnippet-snippets
+    :ensure t)
+#+END_SRC
+
+* OLIVETTI
+#+BEGIN_SRC emacs-lisp
+  (use-package olivetti
+    :ensure t
+    )
+#+END_SRC
+
+* WHICH KEY
+#+BEGIN_SRC emacs-lisp
+  (use-package which-key
+    :ensure t)
+  (which-key-mode)
+#+END_SRC
+
+* COMPANY
+#+BEGIN_SRC emacs-lisp
+  (use-package company
+    :ensure t
+    :bind (:map company-active-map
+                ("C-n" . company-select-next)
+                ("C-p" . company-select-previous))
+    )
+
+  (add-hook 'after-init-hook 'global-company-mode)
+
+  (setq company-dabbrev-downcase 1)
+  (setq company-idle-delay 0)
+
+  (defun tab-indent-or-complete ()
+    (interactive)
+    (if (minibufferp)
+        (minibuffer-complete)
+      (if (or (not yas-minor-mode)
+              (null (do-yas-expand)))
+          (if (check-expansion)
+              (company-complete-common)
+            (indent-for-tab-command)))))
+
+  (global-set-key [backtab] 'tab-indent-or-complete)
+#+END_SRC
+
+* VUNDO
+#+BEGIN_SRC emacs-lisp
+  (use-package vundo
+    :ensure t)
+#+END_SRC
+
+* AUTO INDENT
+#+BEGIN_SRC emacs-lisp
+  (defun auto-indent ()
+    "indent whole buffer"
+    (interactive)
+    (delete-trailing-whitespace)
+    (indent-region (point-min) (point-max) nil)
+    (untabify (point-min) (point-max))
+    )
+
+  (global-set-key [f7] 'auto-indent)
+#+END_SRC
+
+* WHITESPACE
+#+BEGIN_SRC emacs-lisp
+  (global-whitespace-mode 1)
+  (setq whitespace-style
+        (quote (
+                face
+                trailing
+                empty
+                indention
+                spaces
+                space-mark
+                tabs
+                indentation:space
+                )))
+#+END_SRC
+* FLY SPELL
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'text-mode-hook 'flyspell-mode)
+  (add-hook 'prog-mode-hook 'flyspell-prog-mode)
+#+END_SRC
+
+* FLY CHECK
+#+BEGIN_SRC emacs-lisp
+  (use-package flycheck
+    :ensure t
+    :init (global-flycheck-mode))
+#+end_src
+
+* CMAKE
+#+BEGIN_SRC emacs-lisp
+  (use-package cmake-mode
+    :ensure t)
+
+  (defun maybe-cmake-project-mode ()
+    (if (or (file-exists-p "CMakeLists.txt")
+            (file-exists-p (expand-file-name "CMakeLists.txt" (car (project-roots (project-current))))))
+        (cmake-project-mode)))
+
+  (add-hook 'c-mode-hook 'maybe-cmake-project-mode)
+  (add-hook 'c++-mode-hook 'maybe-cmake-project-mode)
+#+END_SRC
+
+* COUNSEL
+#+BEGIN_SRC emacs-lisp
+  (use-package counsel
+    :ensure t)
+  (ivy-mode 1)
+  (ivy-mode)
+  (setq ivy-use-virtual-buffers t)
+  (setq enable-recursive-minibuffers t)
+  ;; enable this if you want `swiper' to use it
+  (setq search-default-mode #'char-fold-to-regexp)
+  (global-set-key "\C-s" 'swiper)
+  (global-set-key (kbd "C-c C-r") 'ivy-resume)
+  (global-set-key (kbd "<f6>") 'ivy-resume)
+  (global-set-key (kbd "M-x") 'counsel-M-x)
+  (global-set-key (kbd "C-x C-f") 'counsel-find-file)
+  (global-set-key (kbd "<f1> f") 'counsel-describe-function)
+  (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
+  (global-set-key (kbd "<f1> o") 'counsel-describe-symbol)
+  (global-set-key (kbd "<f1> l") 'counsel-find-library)
+  (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
+  (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+  (global-set-key (kbd "C-c g") 'counsel-git)
+  (global-set-key (kbd "C-c j") 'counsel-git-grep)
+  (global-set-key (kbd "C-c k") 'counsel-ag)
+  (global-set-key (kbd "C-x l") 'counsel-locate)
+  (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
+  (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
+#+END_SRC
+
+* AVY
+#+begin_src emacs-lisp
+  (use-package avy
+    :ensure t)
+#+end_src
+
+* HYDRA
+#+begin_src emacs-lisp
+  (use-package hydra
+    :ensure t)
+  (defhydra hydra-zoom (global-map "<f2>")
+    "zoom"
+    ("g" text-scale-increase "in")
+    ("l" text-scale-decrease "out"))
+#+end_src
+
+* ORG MODE
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'org-mode-hook #'visual-line-mode)
+  (use-package org-bullets
+    :ensure t)
+
+  (add-hook 'org-mode-hook 'org-bullets-mode)
+  (add-hook 'org-mode-hook 'olivetti-mode)
+  (add-hook 'org-mode-hook 'org-indent-mode)
+
+  (setq org-startup-with-inline-images t)
+  (setq org-image-actual-width (list 300))
+#+END_SRC
+
+* NERD ICONS
+#+begin_src emacs-lisp
+  (use-package nerd-icons
+    :ensure t
+    :custom
+    (nerd-icons-font-family "Symbols Nerd Font Mono")
+    )
+#+end_src
+
+* TREEMACS
+#+begin_src emacs-lisp
+  (use-package treemacs
+    :ensure t
+    :defer t
+    :init
+    (with-eval-after-load 'winum
+      (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
+    :config
+
+    (setq treemacs--width-is-locked nil)
+    (setq treemacs-width-is-initially-locked nil)
+
+    (treemacs-follow-mode t)
+    (treemacs-filewatch-mode t)
+
+    :bind
+    (:map global-map
+          ("M-0"       . treemacs-select-window)
+          ("C-x t 1"   . treemacs-delete-other-windows)
+          ("C-x t t"   . treemacs)
+          ("C-x t d"   . treemacs-select-directory)
+          ("C-x t B"   . treemacs-bookmark)
+          ("C-x t C-t" . treemacs-find-file)
+          ("C-x t M-t" . treemacs-find-tag)))
+
+  (use-package treemacs-projectile
+    :after (treemacs projectile)
+    :ensure t)
+
+  (use-package treemacs-icons-dired
+    :hook (dired-mode . treemacs-icons-dired-enable-once)
+    :ensure t)
+
+  (use-package treemacs-magit
+    :after (treemacs magit)
+    :ensure t)
+
+  (use-package treemacs-nerd-icons
+    :ensure t
+    :config
+    (treemacs-load-theme "nerd-icons"))
+#+end_src
+
+# * PROJECTILE
+# #+begin_src emacs-lisp
+#   (use-package projectile
+#     :ensure t)
+#   (projectile-mode t)
+# #+end_src
+
+* SMOOTH SCROLLING
+#+begin_src emacs-lisp
+  (use-package smooth-scrolling
+    :ensure t)
+  (smooth-scrolling-mode 1)
+#+end_src
+
+* GOOD SCROLL
+#+begin_src emacs-lisp
+  (use-package good-scroll
+    :ensure t)
+  (good-scroll-mode 1)
+  (global-set-key [next] #'good-scroll-up)
+  (global-set-key [prior] #'good-scroll-down)
+#+end_src
+
+* LANGUAGE SERVER PROTOCOL
+#+begin_src emacs-lisp
+  (setq package-selected-packages '(lsp-mode yasnippet lsp-treemacs
+                                             projectile flycheck dap-mode))
+
+  (when (cl-find-if-not #'package-installed-p package-selected-packages)
+    (package-refresh-contents)
+    (mapc #'package-install package-selected-packages))
+
+  (which-key-mode)
+  (add-hook 'c-mode-hook 'lsp)
+  (add-hook 'c++-mode-hook 'lsp)
+
+
+  (setq lsp-eldoc-enable-hover nil)
+
+  (setq gc-cons-threshold (* 100 1024 1024)
+        read-process-output-max (* 1024 1024)
+        treemacs-space-between-root-nodes nil
+        company-idle-delay 0.0
+        company-minimum-prefix-length 1
+        lsp-idle-delay 0.1)  ;; clangd is fast
+
+  (with-eval-after-load 'lsp-mode
+    (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
+    (require 'dap-cpptools)
+    (yas-global-mode))
+
+
+#+end_src
+
+* HIDESHOW
+#+begin_src emacs-lisp
+  (use-package hideshowvis
+    :ensure t)
+  (add-hook 'prog-mode-hook #'hideshowvis-minor-mode)
+#+end_src
+
+* RAINBOW
+#+begin_src emacs-lisp
+  (use-package rainbow-delimiters
+    :ensure t)
+  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+#+end_src
+
+* HELPFUL
+#+begin_src emacs-lisp
+  (use-package helpful
+    :ensure t)
+  ;; Note that the built-in `describe-function' includes both functions
+  ;; and macros. `helpful-function' is functions only, so we provide
+  ;; `helpful-callable' as a drop-in replacement.
+  (global-set-key (kbd "C-h f") #'helpful-callable)
+
+  (global-set-key (kbd "C-h v") #'helpful-variable)
+  (global-set-key (kbd "C-h k") #'helpful-key)
+  (global-set-key (kbd "C-h x") #'helpful-command)
+
+  ;; Lookup the current symbol at point. C-c C-d is a common keybinding
+  ;; for this in lisp modes.
+  (global-set-key (kbd "C-c C-d") #'helpful-at-point)
+
+  ;; Look up *F*unctions (excludes macros).
+  ;;
+  ;; By default, C-h F is bound to `Info-goto-emacs-command-node'. Helpful
+  ;; already links to the manual, if a function is referenced there.
+  (global-set-key (kbd "C-h F") #'helpful-function)
+
+  (setq counsel-describe-function-function #'helpful-callable)
+  (setq counsel-describe-variable-function #'helpful-variable)
+#+end_src
+
+* ACE WINDOW
+Start by calling ace-window and then decide to switch the action to delete or
+swap etc. By default the bindings are:
++ x - delete window
++ m - swap windows
++ M - move window
++ c - copy window
++ j - select buffer
++ n - select the previous window
++ u - select buffer in the other window
++ c - split window fairly, either vertically or horizontally
++ v - split window vertically
++ b - split window horizontally
++ o - maximize current window
++ ? - show these command bindings
+
+#+begin_src emacs-lisp
+  (use-package ace-window
+    :ensure t)
+#+end_src
+
+* TREE SITTER
+#+begin_src emacs-lisp
+  (use-package tree-sitter
+    :ensure t)
+  (use-package tree-sitter-langs
+    :ensure t)
+  (global-tree-sitter-mode t)
+  (add-hook 'c++-mode-hook #'tree-sitter-mode)
+  (add-hook 'org-mode-hook #'tree-sitter-mode)
+#+end_src
+
+* MINION
+#+begin_src emacs-lisp
+  (use-package minions
+    :ensure t
+    :config
+    (setq minions-mode-line-lighter ""
+          minions-mode-line-delimiters '("" . ""))
+    (minions-mode 1))
+#+end_src
+
+* MULTI TERM
+#+begin_src emacs-lisp
+  (use-package multi-term)
+  (global-set-key (kbd "C-c t") 'multi-term)
+#+end_src
+
+* EXPAND REGION
+#+begin_src emacs-lisp
+  (use-package expand-region
+    :ensure t
+    :bind ("M-m" . er/expand-region))
+#+end_src
+
+* CRUX
+
+Command   Suggested Keybinding(s)   Description
+crux-open-with  C-c o   Open the currently visited file with an external program.
+crux-smart-kill-line  C-k or Super-k  First kill to end of line, then kill the whole line.
+crux-smart-open-line-above  C-S-RET or Super-o  Insert an empty line above the current line and indent it properly.
+crux-smart-open-line  S-RET or M-o  Insert an empty line and indent it properly (as in most IDEs).
+crux-cleanup-buffer-or-region   C-c n   Fix indentation in buffer and strip whitespace.
+crux-recentf-find-file  C-c f or Super-r  Open recently visited file.
+crux-recentf-find-directory   C-c F   Open recently visited directory.
+crux-view-url   C-c u   Open a new buffer containing the contents of URL.
+crux-eval-and-replace   C-c e   Eval a bit of Emacs Lisp code and replace it with its result.
+crux-transpose-windows  C-x 4 t   Transpose the buffers between two windows.
+crux-delete-file-and-buffer   C-c D   Delete current file and buffer.
+crux-copy-file-preserve-attributes  C-c c   Copy current file with file attributes preserved
+crux-duplicate-current-line-or-region   C-c d   Duplicate the current line (or region).
+crux-duplicate-and-comment-current-line-or-region   C-c M-d   Duplicate and comment the current line (or region).
+crux-rename-file-and-buffer   C-c r   Rename the current buffer and its visiting file if any.
+crux-visit-term-buffer  C-c t   Open a terminal emulator (ansi-term).
+crux-kill-other-buffers   C-c k   Kill all open buffers except the one you're currently in.
+crux-indent-defun   C-M z   Indent the definition at point.
+crux-indent-rigidly-and-copy-to-clipboard   C-c TAB   Indent and copy region to clipboard
+crux-find-user-init-file  C-c I   Open user's init file.
+crux-find-user-custom-file  C-c ,   Open user's custom file.
+crux-find-shell-init-file   C-c S   Open shell's init file.
+crux-top-join-line  Super-j or C-^  Join lines
+crux-kill-whole-line  Super-k   Kill whole line
+crux-kill-line-backwards  C-Backspace   Kill line backwards
+crux-kill-and-join-forward  C-S-Backspace or C-k  If at end of line, join with following; otherwise kill line.
+crux-kill-buffer-truename   C-c P   Kill absolute path of file visited in current buffer.
+crux-ispell-word-then-abbrev  C-c i   Fix word using ispell and then save to abbrev.
+crux-upcase-region  C-x C-u   upcase-region when transient-mark-mode is on and region is active.
+crux-downcase-region  C-x C-l   downcase-region when transient-mark-mode is on and region is active.
+crux-capitalize-region  C-x M-c   capitalize-region when transient-mark-mode is on and region is active.
+crux-other-window-or-switch-buffer  M-o   Select other window, or switch to most recent buffer if only one windows.
+
+#+begin_src emacs-lisp
+  (use-package crux
+    :ensure t
+    :bind
+    ("C-k" . crux-smart-kill-line)
+    ("C-c n" . crux-cleanup-buffer-or-region)
+    ("C-c f" . crux-recentf-find-file)
+    ("C-a" . crux-move-beginning-of-line))
+#+end_src
+
+* BIND KEY
+#+begin_src emacs-lisp
+  (use-package bind-key
+    :ensure t)
+#+end_src
+
+* KEY-BINDINGS
+#+begin_src emacs-lisp
+    (bind-keys :prefix-map bazinevis-key-map
+               :prefix "s-z"
+               ;; avy
+               ("g t c" . avy-goto-char)
+               ("g t l" . avy-goto-line)
+               ;; embark
+               ("e m" . embark-act))
+
+    (bind-keys*
+     ;; ace-window
+     ("M-o" . other-window)
+     ("M-a" . ace-window))
+
+
+
+    (bind-keys :prefix-map bazinevis
+               :prefix "s-r"
+               ;; avy
+               ("v" . resize_window/body)
+  ;;             ("h" . resize-window)
+  )
+
+    ;; -----
+    (defhydra resize_window ()
+      "resize_window"
+      ("p" shrink-window "Shrink")
+      ("e" enlarge-window "Enlarge")
+      ;;("s" shrink-window-horizontally "Shrink")
+      ;;("e" enlarge-window-horizontally "Enlarge")
+      )
+#+end_src
