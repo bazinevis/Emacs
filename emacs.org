@@ -85,6 +85,26 @@
   (setq org-src-window-setup 'current-window)
 #+end_src
 
+* DIRED
+** Editing Dired Buffer Like Text Buffers
+Wdired is a special mode that allows you to perform file operations by editing
+the Dired buffer directly (the “W” in “Wdired” stands for “writable”). To enter
+Wdired mode, type C-x C-q (dired-toggle-read-only) while in a Dired
+buffer. Alternatively, use the ‘Immediate / Edit File Names’ menu item.
+
+While in Wdired mode, you can rename files by editing the file names displayed in the Dired buffer. All the ordinary Emacs editing commands, including rectangle operations and query-replace, are available for this. Once you are done editing, type C-c C-c (wdired-finish-edit). This applies your changes and switches back to ordinary Dired mode.
+
+Apart from simply renaming files, you can move a file to another directory by typing in the new file name (either absolute or relative). To mark a file for deletion, delete the entire file name. To change the target of a symbolic link, edit the link target name which appears next to the link name.
+
+If you edit the file names to create a new subdirectory, Wdired will automatically create these new directories. To inhibit this behavior, set wdired-create-parent-directories to nil.
+
+The rest of the text in the buffer, such as the file sizes and modification dates, is marked read-only, so you can’t edit it. However, if you set wdired-allow-to-change-permissions to t, you can edit the file permissions. For example, you can change ‘-rw-r--r--’ to ‘-rw-rw-rw-’ to make a file world-writable. These changes also take effect when you type C-c C-c.
+
+** To hide details of dired mode
+#+begin_src emacs-lisp
+  (add-hook 'dired-mode-hook 'dired-hide-details-mode)
+#+end_src
+
 * EMBARK
 #+begin_src emacs-lisp
   (use-package embark
@@ -530,34 +550,40 @@ crux-other-window-or-switch-buffer  M-o   Select other window, or switch to most
 
 * KEY-BINDINGS
 #+begin_src emacs-lisp
-    (bind-keys :prefix-map bazinevis-key-map
-               :prefix "s-z"
-               ;; avy
-               ("g t c" . avy-goto-char)
-               ("g t l" . avy-goto-line)
-               ;; embark
-               ("e m" . embark-act))
+  (bind-keys :prefix-map bazinevis-key-map
+             :prefix "s-z"
+             ;; avy
+             ("g t c" . avy-goto-char)
+             ("g t l" . avy-goto-line)
+             ;; embark
+             ("e m" . embark-act))
 
-    (bind-keys*
-     ;; ace-window
-     ("M-o" . other-window)
-     ("M-a" . ace-window))
+  (bind-keys*
+   ;; ace-window
+   ("M-o" . other-window)
+   ("M-a" . ace-window))
 
 
-
-    (bind-keys :prefix-map bazinevis
-               :prefix "s-r"
-               ;; avy
-               ("v" . resize_window/body)
-  ;;             ("h" . resize-window)
-  )
-
-    ;; -----
-    (defhydra resize_window ()
-      "resize_window"
-      ("p" shrink-window "Shrink")
-      ("e" enlarge-window "Enlarge")
-      ;;("s" shrink-window-horizontally "Shrink")
-      ;;("e" enlarge-window-horizontally "Enlarge")
-      )
+  ;; vvvvvvv
+  (
+   bind-keys :prefix-map bazinevis
+   :prefix "s-r"
+   ("v" . resize_window_vertically/body)
+   ("h" . resize_window_horizontally/body)
+   )
+  ;; =======
+  (
+   defhydra resize_window_vertically ()
+   ;;"resize window"
+   ("-" shrink-window "Shrink Vertically")
+   ("+" enlarge-window "Enlarge Vertically")
+   )
+  ;; =======
+  (
+   defhydra resize_window_horizontally ()
+  ;; "resize_window"
+   ("-" shrink-window-horizontally "Shrink Horizontally")
+   ("+" enlarge-window-horizontally "Enlarge Horizontally")
+   )
+  ;; ^^^^^^^
 #+end_src
