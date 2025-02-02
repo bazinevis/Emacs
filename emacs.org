@@ -531,6 +531,19 @@ swap etc. By default the bindings are:
     :bind ("M-m" . er/expand-region))
 #+end_src
 
+* DIFF
+#+begin_src emacs-lisp
+  (use-package diff-hl
+    :ensure t)
+  (global-diff-hl-mode)
+#+end_src
+
+* MAGIT
+#+begin_src emacs-lisp
+  (use-package magit
+    :ensure t)
+#+end_src
+
 * CRUX
 
 Command   Suggested Keybinding(s)   Description
