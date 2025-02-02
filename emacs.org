@@ -46,7 +46,8 @@
 
 ** FONTS
 #+begin_src emacs-lisp
-  (set-frame-font "Noto Sans Mono 13" nil t)
+  ;; (set-frame-font "Noto Sans Mono 13" nil t)
+  (set-frame-font "Source Code Pro 11" nil t)
 #+end_src
 
 ** FILL INDICATOR
@@ -67,12 +68,12 @@
 ** HIGHLIGHT CURRENT LINE
 #+BEGIN_SRC emacs-lisp
   (global-hl-line-mode nil)
-  (set-face-attribute 'line-number-current-line nil
-                      :foreground "#ffff00"
-                      :background "#696969"
-                      :weight 'bold
-                      :box t
-                      )
+  ;; (set-face-attribute 'line-number-current-line nil
+  ;;                     :foreground "#ffff00"
+  ;;                     :background "#696969"
+  ;;                     :weight 'bold
+  ;;                     :box t
+  ;;                     )
 #+END_SRC
 
 ** NEVER INSERT TABS
@@ -400,11 +401,46 @@ The rest of the text in the buffer, such as the file sizes and modification date
 
 #+end_src
 
-* HIDESHOW
+* ORIGAMI
+origami-open-node 	Open a fold node.
+origami-open-node-recursively 	Open a fold node and all of its children.
+origami-show-node 	Like origami-open-node but also opens parent fold nodes recursively so as to ensure the position where point is is visible.
+origami-close-node 	Close a fold node.
+origami-close-node-recursively 	Close a fold node and all of its children.
+origami-toggle-node 	Toggle open or closed a fold node.
+origami-forward-toggle-node 	Search forward on this line for a node and toggle it open or closed. This makes toggling nodes much more convenient.
+origami-recursively-toggle-node 	Acts like org-mode header collapsing. Cycle a fold between open, recursively open, closed.
+origami-open-all-nodes 	Open every fold in the buffer.
+origami-close-all-nodes 	Close every fold in the buffer.
+origami-toggle-all-nodes 	Toggle open/closed every fold node in the buffer.
+origami-show-only-node 	Close everything but the folds necessary to see the point. Very useful for concentrating on an area of code.
+origami-previous-fold 	Move to the previous fold.
+origami-next-fold 	Move to the end of the next fold.
+origami-forward-fold 	Move to the start of the next fold.
+origami-forward-fold-same-level 	Move to the start of the next fold that is a sibling of the current fold.
+origami-backward-fold-same-level 	Move to the start of the previous fold that is a sibling of the current fold.
+origami-undo 	Undo the last folding operation.
+origami-redo 	Redo the last undone folding operation.
+origami-reset 	Remove all folds from the buffer and reset all origami state. Useful if origami messes up!
 #+begin_src emacs-lisp
-  (use-package hideshowvis
+  (use-package origami
     :ensure t)
-  (add-hook 'prog-mode-hook #'hideshowvis-minor-mode)
+  (global-origami-mode t)
+  ;; Origami mode keys
+(define-key global-map (kbd "C-x C-z") 'origami-mode-map)
+(define-prefix-command 'origami-mode-map)
+(define-key origami-mode-map (kbd "o") 'origami-open-node)
+(define-key origami-mode-map (kbd "O") 'origami-open-node-recursively)
+(define-key origami-mode-map (kbd "c") 'origami-close-node)
+(define-key origami-mode-map (kbd "C") 'origami-close-node-recursively)
+(define-key origami-mode-map (kbd "a") 'origami-toggle-node)
+(define-key origami-mode-map (kbd "A") 'origami-recursively-toggle-node)
+(define-key origami-mode-map (kbd "R") 'origami-open-all-nodes)
+(define-key origami-mode-map (kbd "M") 'origami-close-all-nodes)
+(define-key origami-mode-map (kbd "v") 'origami-show-only-node)
+(define-key origami-mode-map (kbd "k") 'origami-previous-fold)
+(define-key origami-mode-map (kbd "j") 'origami-forward-fold)
+(define-key origami-mode-map (kbd "x") 'origami-reset)
 #+end_src
 
 * RAINBOW
@@ -413,7 +449,6 @@ The rest of the text in the buffer, such as the file sizes and modification date
     :ensure t)
   (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
 #+end_src
-
 * HELPFUL
 #+begin_src emacs-lisp
   (use-package helpful
