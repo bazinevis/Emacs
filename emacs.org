@@ -68,12 +68,6 @@
 ** HIGHLIGHT CURRENT LINE
 #+BEGIN_SRC emacs-lisp
   (global-hl-line-mode nil)
-  ;; (set-face-attribute 'line-number-current-line nil
-  ;;                     :foreground "#ffff00"
-  ;;                     :background "#696969"
-  ;;                     :weight 'bold
-  ;;                     :box t
-  ;;                     )
 #+END_SRC
 
 ** NEVER INSERT TABS
@@ -104,6 +98,10 @@ The rest of the text in the buffer, such as the file sizes and modification date
 ** To hide details of dired mode
 #+begin_src emacs-lisp
   (add-hook 'dired-mode-hook 'dired-hide-details-mode)
+  (use-package nerd-icons-dired
+    :ensure t
+    :hook
+    (dired-mode . nerd-icons-dired-mode))
 #+end_src
 
 * EMBARK
@@ -303,57 +301,6 @@ The rest of the text in the buffer, such as the file sizes and modification date
     )
 #+end_src
 
-* TREEMACS
-#+begin_src emacs-lisp
-  (use-package treemacs
-    :ensure t
-    :defer t
-    :init
-    (with-eval-after-load 'winum
-      (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
-    :config
-
-    (setq treemacs--width-is-locked nil)
-    (setq treemacs-width-is-initially-locked nil)
-
-    (treemacs-follow-mode t)
-    (treemacs-filewatch-mode t)
-
-    :bind
-    (:map global-map
-          ("M-0"       . treemacs-select-window)
-          ("C-x t 1"   . treemacs-delete-other-windows)
-          ("C-x t t"   . treemacs)
-          ("C-x t d"   . treemacs-select-directory)
-          ("C-x t B"   . treemacs-bookmark)
-          ("C-x t C-t" . treemacs-find-file)
-          ("C-x t M-t" . treemacs-find-tag)))
-
-  (use-package treemacs-projectile
-    :after (treemacs projectile)
-    :ensure t)
-
-  (use-package treemacs-icons-dired
-    :hook (dired-mode . treemacs-icons-dired-enable-once)
-    :ensure t)
-
-  (use-package treemacs-magit
-    :after (treemacs magit)
-    :ensure t)
-
-  (use-package treemacs-nerd-icons
-    :ensure t
-    :config
-    (treemacs-load-theme "nerd-icons"))
-#+end_src
-
-# * PROJECTILE
-# #+begin_src emacs-lisp
-#   (use-package projectile
-#     :ensure t)
-#   (projectile-mode t)
-# #+end_src
-
 * SMOOTH SCROLLING
 #+begin_src emacs-lisp
   (use-package smooth-scrolling
@@ -402,45 +349,45 @@ The rest of the text in the buffer, such as the file sizes and modification date
 #+end_src
 
 * ORIGAMI
-origami-open-node 	Open a fold node.
-origami-open-node-recursively 	Open a fold node and all of its children.
-origami-show-node 	Like origami-open-node but also opens parent fold nodes recursively so as to ensure the position where point is is visible.
-origami-close-node 	Close a fold node.
-origami-close-node-recursively 	Close a fold node and all of its children.
-origami-toggle-node 	Toggle open or closed a fold node.
-origami-forward-toggle-node 	Search forward on this line for a node and toggle it open or closed. This makes toggling nodes much more convenient.
-origami-recursively-toggle-node 	Acts like org-mode header collapsing. Cycle a fold between open, recursively open, closed.
-origami-open-all-nodes 	Open every fold in the buffer.
-origami-close-all-nodes 	Close every fold in the buffer.
-origami-toggle-all-nodes 	Toggle open/closed every fold node in the buffer.
-origami-show-only-node 	Close everything but the folds necessary to see the point. Very useful for concentrating on an area of code.
-origami-previous-fold 	Move to the previous fold.
-origami-next-fold 	Move to the end of the next fold.
-origami-forward-fold 	Move to the start of the next fold.
-origami-forward-fold-same-level 	Move to the start of the next fold that is a sibling of the current fold.
-origami-backward-fold-same-level 	Move to the start of the previous fold that is a sibling of the current fold.
-origami-undo 	Undo the last folding operation.
-origami-redo 	Redo the last undone folding operation.
-origami-reset 	Remove all folds from the buffer and reset all origami state. Useful if origami messes up!
+origami-open-node   Open a fold node.
+origami-open-node-recursively   Open a fold node and all of its children.
+origami-show-node   Like origami-open-node but also opens parent fold nodes recursively so as to ensure the position where point is is visible.
+origami-close-node  Close a fold node.
+origami-close-node-recursively  Close a fold node and all of its children.
+origami-toggle-node   Toggle open or closed a fold node.
+origami-forward-toggle-node   Search forward on this line for a node and toggle it open or closed. This makes toggling nodes much more convenient.
+origami-recursively-toggle-node   Acts like org-mode header collapsing. Cycle a fold between open, recursively open, closed.
+origami-open-all-nodes  Open every fold in the buffer.
+origami-close-all-nodes   Close every fold in the buffer.
+origami-toggle-all-nodes  Toggle open/closed every fold node in the buffer.
+origami-show-only-node  Close everything but the folds necessary to see the point. Very useful for concentrating on an area of code.
+origami-previous-fold   Move to the previous fold.
+origami-next-fold   Move to the end of the next fold.
+origami-forward-fold  Move to the start of the next fold.
+origami-forward-fold-same-level   Move to the start of the next fold that is a sibling of the current fold.
+origami-backward-fold-same-level  Move to the start of the previous fold that is a sibling of the current fold.
+origami-undo  Undo the last folding operation.
+origami-redo  Redo the last undone folding operation.
+origami-reset   Remove all folds from the buffer and reset all origami state. Useful if origami messes up!
 #+begin_src emacs-lisp
   (use-package origami
     :ensure t)
   (global-origami-mode t)
   ;; Origami mode keys
-(define-key global-map (kbd "C-x C-z") 'origami-mode-map)
-(define-prefix-command 'origami-mode-map)
-(define-key origami-mode-map (kbd "o") 'origami-open-node)
-(define-key origami-mode-map (kbd "O") 'origami-open-node-recursively)
-(define-key origami-mode-map (kbd "c") 'origami-close-node)
-(define-key origami-mode-map (kbd "C") 'origami-close-node-recursively)
-(define-key origami-mode-map (kbd "a") 'origami-toggle-node)
-(define-key origami-mode-map (kbd "A") 'origami-recursively-toggle-node)
-(define-key origami-mode-map (kbd "R") 'origami-open-all-nodes)
-(define-key origami-mode-map (kbd "M") 'origami-close-all-nodes)
-(define-key origami-mode-map (kbd "v") 'origami-show-only-node)
-(define-key origami-mode-map (kbd "k") 'origami-previous-fold)
-(define-key origami-mode-map (kbd "j") 'origami-forward-fold)
-(define-key origami-mode-map (kbd "x") 'origami-reset)
+  (define-key global-map (kbd "C-x C-z") 'origami-mode-map)
+  (define-prefix-command 'origami-mode-map)
+  (define-key origami-mode-map (kbd "o") 'origami-open-node)
+  (define-key origami-mode-map (kbd "O") 'origami-open-node-recursively)
+  (define-key origami-mode-map (kbd "c") 'origami-close-node)
+  (define-key origami-mode-map (kbd "C") 'origami-close-node-recursively)
+  (define-key origami-mode-map (kbd "a") 'origami-toggle-node)
+  (define-key origami-mode-map (kbd "A") 'origami-recursively-toggle-node)
+  (define-key origami-mode-map (kbd "R") 'origami-open-all-nodes)
+  (define-key origami-mode-map (kbd "M") 'origami-close-all-nodes)
+  (define-key origami-mode-map (kbd "v") 'origami-show-only-node)
+  (define-key origami-mode-map (kbd "k") 'origami-previous-fold)
+  (define-key origami-mode-map (kbd "j") 'origami-forward-fold)
+  (define-key origami-mode-map (kbd "x") 'origami-reset)
 #+end_src
 
 * RAINBOW
@@ -516,12 +463,6 @@ swap etc. By default the bindings are:
     (setq minions-mode-line-lighter ""
           minions-mode-line-delimiters '("" . ""))
     (minions-mode 1))
-#+end_src
-
-* MULTI TERM
-#+begin_src emacs-lisp
-  (use-package multi-term)
-  (global-set-key (kbd "C-c t") 'multi-term)
 #+end_src
 
 * EXPAND REGION
@@ -629,7 +570,7 @@ crux-other-window-or-switch-buffer  M-o   Select other window, or switch to most
   ;; =======
   (
    defhydra resize_window_horizontally ()
-  ;; "resize_window"
+   ;; "resize_window"
    ("-" shrink-window-horizontally "Shrink Horizontally")
    ("+" enlarge-window-horizontally "Enlarge Horizontally")
    )
