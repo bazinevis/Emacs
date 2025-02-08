@@ -32,6 +32,26 @@
   (scroll-bar-mode -1)
 #+END_SRC
 
+** PRESERVE POINT POSITION
+#+begin_src emacs-lisp
+  ;;(setq scroll-preserve-screen-position nil)
+  (setq scroll-conservatively 101)
+  (setq scroll-margin 0)
+  (setq scroll-preserve-screen-position 'always)
+
+  (defun my-scroll-up (arg)
+    "Scroll up but keep the point at its current position."
+    (interactive "p")
+    (save-excursion
+      (scroll-up-command arg)))
+
+  (defun my-scroll-down (arg)
+    "Scroll down but keep the point at its current position."
+    (interactive "p")
+    (save-excursion
+      (scroll-down-command arg)))
+#+end_src
+
 ** STARTUP SCREEN
 #+BEGIN_SRC emacs-lisp
   (setq inhibit-startup-screen t)
@@ -47,7 +67,7 @@
 ** FONTS
 #+begin_src emacs-lisp
   ;; (set-frame-font "Noto Sans Mono 13" nil t)
-  (set-frame-font "Source Code Pro 11" nil t)
+  (set-frame-font "Source Code Pro 10" nil t)
 #+end_src
 
 ** FILL INDICATOR
@@ -78,6 +98,42 @@
 ** WINDOW SETUP
 #+begin_src emacs-lisp
   (setq org-src-window-setup 'current-window)
+#+end_src
+
+* DIMINISH
+#+begin_src emacs-lisp
+  (use-package diminish
+    :ensure t)
+#+end_src
+
+* HIGHLIGHT BLOCK
+#+begin_src emacs-lisp
+  (use-package hl-block-mode
+    :ensure t
+    :config
+    (setq hl-block-bracket nil)
+                                          ;(setq hl-block-single-level t)
+    (setq hl-block-style 'color-tint)
+    (setq hl-block-color-tint "#050500")
+    :hook ((prog-mode) . hl-block-mode))
+#+end_src
+
+* AGGRESSIVE INDENT
+#+begin_src emacs-lisp
+  (use-package aggressive-indent
+    :ensure t)
+  (global-aggressive-indent-mode t)
+#+end_src
+
+* HIDE SHOW
+#+begin_src emacs-lisp
+  (add-hook 'prog-mode-hook 'hs-minor-mode)
+#+end_src
+
+* WIND-RESIZE
+#+begin_src emacs-lisp
+  (use-package windresize
+    :ensure t)
 #+end_src
 
 * DIRED
@@ -134,8 +190,10 @@ The rest of the text in the buffer, such as the file sizes and modification date
 * OLIVETTI
 #+BEGIN_SRC emacs-lisp
   (use-package olivetti
-    :ensure t
-    )
+    :ensure t)
+  (add-hook 'org-mode-hook 'olivetti-mode)
+  (add-hook 'c-mode-hook 'olivetti-mode)
+  (add-hook 'c++-mode-hook 'olivetti-mode)
 #+END_SRC
 
 * WHICH KEY
@@ -187,8 +245,7 @@ The rest of the text in the buffer, such as the file sizes and modification date
     (indent-region (point-min) (point-max) nil)
     (untabify (point-min) (point-max))
     )
-
-  (global-set-key [f7] 'auto-indent)
+  (global-set-key [C-i] 'auto-indent)
 #+END_SRC
 
 * WHITESPACE
@@ -204,6 +261,7 @@ The rest of the text in the buffer, such as the file sizes and modification date
                 space-mark
                 tabs
                 indentation:space
+                newline
                 )))
 #+END_SRC
 * FLY SPELL
@@ -248,12 +306,6 @@ The rest of the text in the buffer, such as the file sizes and modification date
   (global-set-key (kbd "<f6>") 'ivy-resume)
   (global-set-key (kbd "M-x") 'counsel-M-x)
   (global-set-key (kbd "C-x C-f") 'counsel-find-file)
-  (global-set-key (kbd "<f1> f") 'counsel-describe-function)
-  (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
-  (global-set-key (kbd "<f1> o") 'counsel-describe-symbol)
-  (global-set-key (kbd "<f1> l") 'counsel-find-library)
-  (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
-  (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
   (global-set-key (kbd "C-c g") 'counsel-git)
   (global-set-key (kbd "C-c j") 'counsel-git-grep)
   (global-set-key (kbd "C-c k") 'counsel-ag)
@@ -285,7 +337,6 @@ The rest of the text in the buffer, such as the file sizes and modification date
     :ensure t)
 
   (add-hook 'org-mode-hook 'org-bullets-mode)
-  (add-hook 'org-mode-hook 'olivetti-mode)
   (add-hook 'org-mode-hook 'org-indent-mode)
 
   (setq org-startup-with-inline-images t)
@@ -348,48 +399,6 @@ The rest of the text in the buffer, such as the file sizes and modification date
 
 #+end_src
 
-* ORIGAMI
-origami-open-node   Open a fold node.
-origami-open-node-recursively   Open a fold node and all of its children.
-origami-show-node   Like origami-open-node but also opens parent fold nodes recursively so as to ensure the position where point is is visible.
-origami-close-node  Close a fold node.
-origami-close-node-recursively  Close a fold node and all of its children.
-origami-toggle-node   Toggle open or closed a fold node.
-origami-forward-toggle-node   Search forward on this line for a node and toggle it open or closed. This makes toggling nodes much more convenient.
-origami-recursively-toggle-node   Acts like org-mode header collapsing. Cycle a fold between open, recursively open, closed.
-origami-open-all-nodes  Open every fold in the buffer.
-origami-close-all-nodes   Close every fold in the buffer.
-origami-toggle-all-nodes  Toggle open/closed every fold node in the buffer.
-origami-show-only-node  Close everything but the folds necessary to see the point. Very useful for concentrating on an area of code.
-origami-previous-fold   Move to the previous fold.
-origami-next-fold   Move to the end of the next fold.
-origami-forward-fold  Move to the start of the next fold.
-origami-forward-fold-same-level   Move to the start of the next fold that is a sibling of the current fold.
-origami-backward-fold-same-level  Move to the start of the previous fold that is a sibling of the current fold.
-origami-undo  Undo the last folding operation.
-origami-redo  Redo the last undone folding operation.
-origami-reset   Remove all folds from the buffer and reset all origami state. Useful if origami messes up!
-#+begin_src emacs-lisp
-  (use-package origami
-    :ensure t)
-  (global-origami-mode t)
-  ;; Origami mode keys
-  (define-key global-map (kbd "C-x C-z") 'origami-mode-map)
-  (define-prefix-command 'origami-mode-map)
-  (define-key origami-mode-map (kbd "o") 'origami-open-node)
-  (define-key origami-mode-map (kbd "O") 'origami-open-node-recursively)
-  (define-key origami-mode-map (kbd "c") 'origami-close-node)
-  (define-key origami-mode-map (kbd "C") 'origami-close-node-recursively)
-  (define-key origami-mode-map (kbd "a") 'origami-toggle-node)
-  (define-key origami-mode-map (kbd "A") 'origami-recursively-toggle-node)
-  (define-key origami-mode-map (kbd "R") 'origami-open-all-nodes)
-  (define-key origami-mode-map (kbd "M") 'origami-close-all-nodes)
-  (define-key origami-mode-map (kbd "v") 'origami-show-only-node)
-  (define-key origami-mode-map (kbd "k") 'origami-previous-fold)
-  (define-key origami-mode-map (kbd "j") 'origami-forward-fold)
-  (define-key origami-mode-map (kbd "x") 'origami-reset)
-#+end_src
-
 * RAINBOW
 #+begin_src emacs-lisp
   (use-package rainbow-delimiters
@@ -442,12 +451,14 @@ swap etc. By default the bindings are:
 #+begin_src emacs-lisp
   (use-package ace-window
     :ensure t)
+  (ace-window-display-mode t)
 #+end_src
 
 * TREE SITTER
 #+begin_src emacs-lisp
   (use-package tree-sitter
-    :ensure t)
+    :ensure t
+    :diminish tree-sitter-mode)
   (use-package tree-sitter-langs
     :ensure t)
   (global-tree-sitter-mode t)
@@ -455,28 +466,11 @@ swap etc. By default the bindings are:
   (add-hook 'org-mode-hook #'tree-sitter-mode)
 #+end_src
 
-* MINION
-#+begin_src emacs-lisp
-  (use-package minions
-    :ensure t
-    :config
-    (setq minions-mode-line-lighter ""
-          minions-mode-line-delimiters '("" . ""))
-    (minions-mode 1))
-#+end_src
-
 * EXPAND REGION
 #+begin_src emacs-lisp
   (use-package expand-region
     :ensure t
     :bind ("M-m" . er/expand-region))
-#+end_src
-
-* DIFF
-#+begin_src emacs-lisp
-  (use-package diff-hl
-    :ensure t)
-  (global-diff-hl-mode)
 #+end_src
 
 * MAGIT
@@ -531,6 +525,14 @@ crux-other-window-or-switch-buffer  M-o   Select other window, or switch to most
     ("C-a" . crux-move-beginning-of-line))
 #+end_src
 
+* PLANT UML
+#+begin_src emacs-lisp
+  (use-package plantuml-mode
+    :ensure t)
+  (setq plantuml-jar-path "/home/bazinevis/Programs/plantuml-1.2025.0.jar")
+  (setq plantuml-default-exec-mode 'jar)
+#+end_src
+
 * BIND KEY
 #+begin_src emacs-lisp
   (use-package bind-key
@@ -542,37 +544,35 @@ crux-other-window-or-switch-buffer  M-o   Select other window, or switch to most
   (bind-keys :prefix-map bazinevis-key-map
              :prefix "s-z"
              ;; avy
-             ("g t c" . avy-goto-char)
-             ("g t l" . avy-goto-line)
+             ("g c" . avy-goto-char)
+             ("g l" . avy-goto-line)
+
              ;; embark
-             ("e m" . embark-act))
+             ("e m" . embark-act)
+
+             ;; windresize
+             ("r" . windresize)
+
+             ;;speedbar
+             ("s" . speedbar)
+
+             ;;hide show
+             ("h a" . hs-hide-all)
+             ("h t" . hs-toggle-hiding)
+             ("h l" . hs-hide-level)
+
+             ;; LSP
+             ("g d" . lsp-goto-type-definition)
+
+             ;; Delete whitespace
+             ("d w" . delete-trailing-whitespace)
+
+             ;; Show newline
+             ("n l" . whitespace-newline-mode)
+             )
 
   (bind-keys*
    ;; ace-window
    ("M-o" . other-window)
    ("M-a" . ace-window))
-
-
-  ;; vvvvvvv
-  (
-   bind-keys :prefix-map bazinevis
-   :prefix "s-r"
-   ("v" . resize_window_vertically/body)
-   ("h" . resize_window_horizontally/body)
-   )
-  ;; =======
-  (
-   defhydra resize_window_vertically ()
-   ;;"resize window"
-   ("-" shrink-window "Shrink Vertically")
-   ("+" enlarge-window "Enlarge Vertically")
-   )
-  ;; =======
-  (
-   defhydra resize_window_horizontally ()
-   ;; "resize_window"
-   ("-" shrink-window-horizontally "Shrink Horizontally")
-   ("+" enlarge-window-horizontally "Enlarge Horizontally")
-   )
-  ;; ^^^^^^^
 #+end_src
